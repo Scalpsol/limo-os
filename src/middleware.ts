@@ -9,8 +9,9 @@ export async function middleware(request: NextRequest) {
   })
 
   // Anahtarları Kontrol Et (Güvenlik Önlemi)
-  const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL
-  const supabaseKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
+// (Bunu Yaz)
+const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL
+const supabaseKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
 
   if (!supabaseUrl || !supabaseKey) {
     // Anahtarlar yoksa middleware çalışmasın ama site de çökmesin
