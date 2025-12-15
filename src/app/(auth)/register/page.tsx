@@ -1,11 +1,30 @@
+'use client'
+
 import Link from "next/link"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
+import { signup } from "../actions"
+import { useState } from "react"
 
 export default function RegisterPage() {
+  const [error, setError] = useState<string | null>(null)
+  const [loading, setLoading] = useState(false)
+
+  async function handleSubmit(formData: FormData) {
+    setLoading(true)
+    setError(null)
+    
+    const result = await signup(formData)
+    
+    if (result?.error) {
+      setError(result.error)
+      setLoading(false)
+    }
+  }
+
   return (
-    <div className="grid gap-4">
+    <form action={handleSubmit} className="grid gap-4">
       <div className="grid gap-2 text-center">
         <h1 className="text-3xl font-bold text-blue-600">Limo.</h1>
         <h2 className="text-2xl font-bold">Hesap Oluştur</h2>
@@ -14,35 +33,41 @@ export default function RegisterPage() {
         </p>
       </div>
       
+      {error && (
+        <div className="bg-red-50 text-red-600 p-3 rounded-md text-sm text-center">
+            {error}
+        </div>
+      )}
+
       <div className="grid gap-4 mt-4">
         <div className="grid grid-cols-2 gap-4">
           <div className="grid gap-2">
             <Label htmlFor="first-name">Ad</Label>
-            <Input id="first-name" placeholder="Adınız" required className="bg-gray-50" />
+            <Input id="first-name" name="first-name" placeholder="Adınız" required className="bg-gray-50" />
           </div>
           <div className="grid gap-2">
             <Label htmlFor="last-name">Soyad</Label>
-            <Input id="last-name" placeholder="Soyadınız" required className="bg-gray-50" />
+            <Input id="last-name" name="last-name" placeholder="Soyadınız" required className="bg-gray-50" />
           </div>
         </div>
         
         <div className="grid gap-2">
           <Label htmlFor="company">Şirket Adı</Label>
-          <Input id="company" placeholder="Şirketiniz" required className="bg-gray-50" />
+          <Input id="company" name="company" placeholder="Şirketiniz" required className="bg-gray-50" />
         </div>
 
         <div className="grid gap-2">
           <Label htmlFor="email">E-posta</Label>
-          <Input id="email" type="email" placeholder="m@ornek.com" required className="bg-gray-50" />
+          <Input id="email" name="email" type="email" placeholder="m@ornek.com" required className="bg-gray-50" />
         </div>
         
         <div className="grid gap-2">
           <Label htmlFor="password">Şifre</Label>
-          <Input id="password" type="password" required className="bg-gray-50" />
+          <Input id="password" name="password" type="password" required className="bg-gray-50" />
         </div>
         
-        <Button type="submit" className="w-full bg-blue-600 hover:bg-blue-700">
-          Kayıt Ol ve Başla
+        <Button type="submit" className="w-full bg-blue-600 hover:bg-blue-700" disabled={loading}>
+          {loading ? 'Kayıt yapılıyor...' : 'Kayıt Ol ve Başla'}
         </Button>
       </div>
 
@@ -52,6 +77,6 @@ export default function RegisterPage() {
           Giriş Yap
         </Link>
       </div>
-    </div>
+    </form>
   )
 }
