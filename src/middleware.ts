@@ -8,9 +8,19 @@ export async function middleware(request: NextRequest) {
     },
   })
 
+  // Anahtarları Kontrol Et (Güvenlik Önlemi)
+  const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL
+  const supabaseKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
+
+  if (!supabaseUrl || !supabaseKey) {
+    // Anahtarlar yoksa middleware çalışmasın ama site de çökmesin
+    console.error('Supabase anahtarları eksik!')
+    return response
+  }
+
   const supabase = createServerClient(
-    process.env.NEXT_PUBLIC_SUPABASE_URL!,
-    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
+    supabaseUrl,
+    supabaseKey,
     {
       cookies: {
         get(name: string) {
@@ -41,17 +51,15 @@ export async function middleware(request: NextRequest) {
   // Oturumu kontrol et
   const { data: { user } } = await supabase.auth.getUser()
 
-  // 1. Kullanıcı giriş yapmamışsa ve dashboard'a girmek istiyorsa -> Login'e at
+  // Yönlendirme Kuralları
   if (!user && request.nextUrl.pathname.startsWith('/dashboard')) {
     return NextResponse.redirect(new URL('/login', request.url))
   }
 
-  // 2. Kullanıcı giriş yapmışsa ve Login/Register'a girmek istiyorsa -> Dashboard'a at
   if (user && (request.nextUrl.pathname.startsWith('/login') || request.nextUrl.pathname.startsWith('/register'))) {
     return NextResponse.redirect(new URL('/dashboard', request.url))
   }
 
-  // 3. Kullanıcı ana sayfaya (/) gelirse -> Login'e at (veya dashboard'a)
   if (request.nextUrl.pathname === '/') {
     return NextResponse.redirect(new URL(user ? '/dashboard' : '/login', request.url))
   }
